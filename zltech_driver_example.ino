@@ -92,6 +92,14 @@ bool setVelocity(int16_t value_left, int16_t value_right){
     return ret1 && ret2;
 }
 
+bool setTorque(int16_t value_left, int16_t value_right){
+    uint8_t result1 = node.writeSingleRegister(TARGET_TORQUE_LEFT, value_left);
+    bool ret1 = (result1 == node.ku8MBSuccess);
+    uint8_t result2 = node.writeSingleRegister(TARGET_TORQUE_RIGHT, value_right);
+    bool ret2 = (result2 == node.ku8MBSuccess);
+    return ret1 && ret2;
+}
+
 bool getPosition(int32_t* dest){
     uint16_t data[4];
     uint8_t result = node.readHoldingRegisters(ACTUAL_POS_HIGH_LEFT, 4);
