@@ -1,7 +1,5 @@
 #include <ModbusMaster.h>
-#include <SoftwareSerial.h>
 // https://github.com/4-20ma/ModbusMaster
-// https://github.com/PaulStoffregen/SoftwareSerial
 
 #include "zltech_item.h"
 
@@ -11,14 +9,13 @@ uint16_t acc_time = 50;
 uint16_t dec_time = 50;
 
 ModbusMaster node;
-SoftwareSerial mySerial(6,7);       // pin 6 = RX, pin 7 = TX
 
 float Data_Modbus[5];
 
 void setup(){
     Serial.begin(57600);
-    mySerial.begin(9600);
-    node.begin(1, mySerial);
+    Serial1.begin(9600);
+    node.begin(1, Serial1 );
 
     Serial.println("Initializing..");
 
