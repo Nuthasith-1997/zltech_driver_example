@@ -8,21 +8,29 @@ int16_t velocity[2] = {0, 0};
 uint16_t acc_time = 50;
 uint16_t dec_time = 50;
 
+volatile int16_t velocity_target_left, velocity_target_right;
+
 ModbusMaster node;
 
 void setup(){
     Serial.begin(57600);
     Serial1.begin(9600);
-    node.begin(1, Serial1 );
+    node.begin(1, Serial1);
 
     Serial.println("Initializing..");
 
+    // Set control mode (3 is Velocity mode).
+    // You can find it in the given manual.
     if (!setControlMode(3)){
         Serial.println("Cannot set Velocity Mode.");
     }
+    // Set control word (8 is enable tne driver).
     if (!setControlWord(8)){
         Serial.println("Cannot enable motors.");
     }
+    
+    // Less value mean faster response.
+    // You should check the unit of "acc_time" and "dec_time" in the manual.
     if (!setAccTime(acc_time)){
         Serial.println("Cannot set AccTime.");
     }
@@ -32,27 +40,43 @@ void setup(){
 }
 
 void loop(){
+    // We read the volocities and positions then store in 1x2 arrays "velocity" and "position".
     if (!getVelocity(velocity)){
         Serial.println("Cannot get velocity.");
     }
     if (!getPosition(position)){
         Serial.println("Cannot get position.");
     }
+    
+    // Just print the actual velocities.
+    // Note that reading velocities is 10 times of the actual velocities.
     Serial.print("Left = ");
-    Serial.print(velocity[0]);
+    Serial.print(velocity[0]*0.1);
     Serial.print(" ");
     Serial.print("Right = ");
-    Serial.print(velocity[1]);
+    Serial.print(velocity[1]*0.1);
     Serial.print(" ");
+    
+    // The pulses reflect the position of the motors.
+    // 1 round or 2*pi radian is equal to 4096 pulse (for the given motors).
     Serial.print("PulseL = ");
     Serial.print(position[0]);
     Serial.print(" ");
     Serial.print("PulseR = ");
     Serial.println(position[1]);
 
-    setVelocity(0,0);
+    // Input the velocities for each motors here!
+    velocity_target_left  = 0;
+    velocity_target_right = 0;
+    
+    if (!setVelocity(velocity_target_left,velocity_target_right)){
+        Serial.print("Cannot set velocities!");
+    }
 }
 
+
+// Below this line is the implementation of the MODBUS communication.
+// You do not need to modify the lines of code below, unless you want to practice!
 bool setControlMode(uint16_t value){
     uint8_t result = node.writeSingleRegister(CONTROL_MODE, value);
     return result == node.ku8MBSuccess;
