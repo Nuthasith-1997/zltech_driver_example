@@ -10,8 +10,6 @@ uint16_t dec_time = 50;
 
 ModbusMaster node;
 
-float Data_Modbus[5];
-
 void setup(){
     Serial.begin(57600);
     Serial1.begin(9600);
